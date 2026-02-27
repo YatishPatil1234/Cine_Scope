@@ -107,4 +107,12 @@ export async function getDiscoverMovies(options = {}) {
   return res.json();
 }
 
+export async function getMovieVideos(id, language = DEFAULT_LANGUAGE) {
+  return fetchFromTMDB(`/movie/${id}/videos`, language);
+}
+
+export async function getMovieReviews(id, language = DEFAULT_LANGUAGE) {
+  return fetchFromTMDB(`/movie/${id}/reviews`, language);
+}
+
 export { DEFAULT_LANGUAGE };

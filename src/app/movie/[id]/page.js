@@ -1,10 +1,17 @@
-import { cookies } from "next/headers";
-import MovieCard from "@/components/MovieCard";
-import WatchlistButton from "@/components/WatchListButton";
 import BackdropImage from "@/components/BackdropImage";
 import CastCard from "@/components/CastCard";
+import MovieCard from "@/components/MovieCard";
+import TrailerModal from "@/components/TrailerModal";
+import WatchlistButton from "@/components/WatchListButton";
 import { getLanguageFromCookie } from "@/lib/language";
-import { getMovieCredits, getMovieDetails, getSimilarMovies } from "@/lib/tmdb";
+import {
+  getMovieCredits,
+  getMovieDetails,
+  getMovieReviews,
+  getMovieVideos,
+  getSimilarMovies,
+} from "@/lib/tmdb";
+import { cookies } from "next/headers";
 import Image from "next/image";
 
 function formatMoney(value) {
@@ -20,17 +27,20 @@ export default async function MoviePage({ params }) {
   const cookieStore = await cookies();
   const lang = getLanguageFromCookie(cookieStore);
 
-  const [movie, credits, similar] = await Promise.all([
+  const [movie, credits, similar, videos, reviews] = await Promise.all([
     getMovieDetails(id, lang),
     getMovieCredits(id, lang),
     getSimilarMovies(id, lang),
+    getMovieVideos(id, lang),
+    getMovieReviews(id, lang),
   ]);
 
   const backdropSrc = movie.backdrop_path
     ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
     : null;
 
-  const voteAvg = movie.vote_average != null ? movie.vote_average.toFixed(1) : "—";
+  const voteAvg =
+    movie.vote_average != null ? movie.vote_average.toFixed(1) : "—";
   const releaseDate = movie.release_date || "—";
   const runtime = movie.runtime ? `${movie.runtime} min` : null;
   const tagline = movie.tagline?.trim() || null;
@@ -39,7 +49,7 @@ export default async function MoviePage({ params }) {
   const revenueStr = formatMoney(movie.revenue);
 
   return (
-    <main className="pb-12 sm:pb-20 overflow-x-hidden w-full">
+    <main className="pb-16 sm:pb-24 overflow-x-hidden w-full">
       {/* BACKDROP */}
       <div className="relative h-[40vh] min-h-[240px] sm:min-h-[280px] md:h-[50vh] md:min-h-[320px] w-full overflow-hidden">
         <BackdropImage
@@ -51,21 +61,21 @@ export default async function MoviePage({ params }) {
       </div>
 
       {/* CONTENT */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 -mt-28 sm:-mt-32 md:-mt-40 relative z-10 w-full box-border">
-        <div className="flex flex-col md:flex-row gap-6 sm:gap-8 md:gap-10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 -mt-28 sm:-mt-32 md:-mt-40 relative z-10">
+        {/* TOP SECTION */}
+        <div className="flex flex-col md:flex-row gap-8 md:gap-12">
           {/* POSTER */}
-          <div className="flex-shrink-0 w-full max-w-[240px] sm:max-w-[280px] mx-auto md:mx-0">
-            <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl shadow-black/50 border border-border">
+          <div className="flex-shrink-0 w-full max-w-[260px] sm:max-w-[300px] mx-auto md:mx-0">
+            <div className="relative aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/50 border border-border">
               {movie.poster_path ? (
                 <Image
                   src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                   alt={movie.title}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) 240px, 280px"
                 />
               ) : (
-                <div className="absolute inset-0 bg-card flex items-center justify-center text-muted-foreground text-5xl sm:text-6xl">
+                <div className="absolute inset-0 bg-card flex items-center justify-center text-muted-foreground text-5xl">
                   🎬
                 </div>
               )}
@@ -73,20 +83,18 @@ export default async function MoviePage({ params }) {
           </div>
 
           {/* INFO */}
-          <div className="space-y-4 sm:space-y-5 flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+          <div className="space-y-5 flex-1">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
               {movie.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span>⭐ {voteAvg}</span>
               {releaseDate !== "—" && <span>• {releaseDate}</span>}
               {runtime && <span>• {runtime}</span>}
             </div>
 
-            {tagline && (
-              <p className="text-foreground/90 italic text-sm sm:text-base">{tagline}</p>
-            )}
+            {tagline && <p className="text-foreground/90 italic">{tagline}</p>}
 
             <div className="flex flex-wrap gap-2">
               {movie.genres?.map((genre) => (
@@ -99,12 +107,11 @@ export default async function MoviePage({ params }) {
               ))}
             </div>
 
-            <p className="max-w-2xl text-muted-foreground leading-relaxed text-sm sm:text-base">
+            <p className="max-w-2xl text-muted-foreground leading-relaxed">
               {movie.overview}
             </p>
 
-            {/* Extra info */}
-            <div className="flex flex-wrap gap-4 sm:gap-6 pt-2 text-sm">
+            <div className="flex flex-wrap gap-6 pt-2 text-sm">
               {status && (
                 <div>
                   <span className="text-muted-foreground">Status</span>
@@ -125,16 +132,19 @@ export default async function MoviePage({ params }) {
               )}
             </div>
 
-            <WatchlistButton movie={movie} />
+            <div className="flex gap-4 pt-2">
+              <WatchlistButton movie={movie} />
+              <TrailerModal videos={videos} />
+            </div>
           </div>
         </div>
 
         {/* CAST */}
-        <section className="mt-12 sm:mt-16 md:mt-20">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mb-4 sm:mb-6">
+        <section className="mt-20">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground mb-6">
             Cast
           </h2>
-          <div className="flex gap-4 sm:gap-6 overflow-x-auto pb-2 hide-scrollbar scroll-smooth snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex gap-6 overflow-x-auto pb-2 hide-scrollbar">
             {(credits.cast || []).slice(0, 12).map((actor) => (
               <CastCard key={actor.id} actor={actor} />
             ))}
@@ -142,15 +152,77 @@ export default async function MoviePage({ params }) {
         </section>
 
         {/* SIMILAR MOVIES */}
-        <section className="mt-12 sm:mt-16 md:mt-20">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mb-4 sm:mb-6">
+        <section className="mt-20">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground mb-6">
             Similar Movies
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {(similar.results || []).slice(0, 10).map((m) => (
               <MovieCard key={m.id} movie={m} />
             ))}
           </div>
+        </section>
+
+        {/* REVIEWS (Modern) */}
+        <section className="mt-24">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground mb-8">
+            Reviews
+          </h2>
+
+          {(reviews.results || []).length === 0 ? (
+            <div className="text-center py-16 border border-border rounded-2xl bg-card">
+              <p className="text-muted-foreground">
+                No reviews available for this movie.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {reviews.results.slice(0, 5).map((review) => (
+                <div
+                  key={review.id}
+                  className="p-8 rounded-2xl bg-card border border-border transition-all duration-300 hover:border-slate-700 hover:shadow-lg hover:shadow-black/20"
+                >
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-semibold text-lg">
+                        {review.author?.charAt(0).toUpperCase()}
+                      </div>
+
+                      <div>
+                        <p className="font-semibold text-foreground">
+                          {review.author}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          TMDB User Review
+                        </p>
+                      </div>
+                    </div>
+
+                    {review.author_details?.rating && (
+                      <div className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-medium">
+                        ⭐ {review.author_details.rating}
+                      </div>
+                    )}
+                  </div>
+
+                  <p className="text-sm sm:text-base text-muted-foreground leading-relaxed line-clamp-4">
+                    {review.content}
+                  </p>
+
+                  {review.url && (
+                    <a
+                      href={review.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-6 text-sm text-indigo-400 hover:text-indigo-300 transition font-medium"
+                    >
+                      Read full review →
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </main>
