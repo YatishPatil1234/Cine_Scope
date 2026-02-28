@@ -14,6 +14,7 @@ import {
 import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 function formatMoney(value) {
   if (!value || value < 1000) return null;
@@ -23,6 +24,40 @@ function formatMoney(value) {
   return `$${value}`;
 }
 
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  try {
+    const movie = await getMovieDetails(id);
+
+    if (!movie) {
+      return {
+        title: "Movie Not Found — CineScope",
+      };
+    }
+
+    const title = movie.title;
+    const description =
+      movie.overview?.slice(0, 160) || `Discover ${movie.title} on CineScope.`;
+
+    const image = movie.backdrop_path
+      ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+      : null;
+
+    return {
+      title,
+      description,
+      openGraph: {
+        title,
+        description,
+        images: image ? [{ url: image }] : [],
+      },
+    };
+  } catch (error) {
+    return {
+      title: "CineScope",
+    };
+  }
+}
 export default async function MoviePage({ params }) {
   const { id } = await params;
   const cookieStore = await cookies();
@@ -48,6 +83,10 @@ export default async function MoviePage({ params }) {
   const status = movie.status || null;
   const budgetStr = formatMoney(movie.budget);
   const revenueStr = formatMoney(movie.revenue);
+
+  if (!movie || movie.success === false) {
+    notFound();
+  }
 
   return (
     <main className="pb-16 sm:pb-24 overflow-x-hidden w-full">

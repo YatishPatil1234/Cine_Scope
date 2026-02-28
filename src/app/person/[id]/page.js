@@ -4,6 +4,7 @@ import { getLanguageFromCookie } from "@/lib/language";
 import { getPersonDetails, getPersonMovieCredits } from "@/lib/tmdb";
 import { cookies } from "next/headers";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
 function calculateAge(birthday) {
   if (!birthday) return null;
@@ -33,6 +34,10 @@ export default async function PersonPage({ params }) {
   const profileSrc = person.profile_path
     ? `https://image.tmdb.org/t/p/w500${person.profile_path}`
     : null;
+
+  if (!person || person.success === false) {
+    notFound();
+  }
 
   return (
     <main className="pb-24 overflow-x-hidden">

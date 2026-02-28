@@ -1,14 +1,15 @@
-import { cookies } from "next/headers";
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 import { getLanguageFromCookie } from "@/lib/language";
+import { cookies } from "next/headers";
 import "./globals.css";
 
 export const metadata = {
-  title: "CineScope — Discover movies worth your time",
-  description:
-    "Explore trending, popular, upcoming, and top-rated movies. Save favorites and build your watchlist.",
-  viewport: { width: "device-width", initialScale: 1, maximumScale: 5 },
+  title: {
+    default: "CineScope — Discover Movies",
+    template: "%s | CineScope",
+  },
+  description: "Explore trending, popular, upcoming, and top-rated movies.",
 };
 
 export default async function RootLayout({ children }) {

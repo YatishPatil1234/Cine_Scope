@@ -2,6 +2,7 @@ import { getLanguageFromCookie } from "@/lib/language";
 import { getAllGenres } from "@/lib/tmdb";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 export default async function GenresPage() {
   const cookieStore = await cookies();
@@ -9,6 +10,10 @@ export default async function GenresPage() {
 
   const data = await getAllGenres(lang);
   const genres = data?.genres || [];
+
+  if (!genres) {
+    notFound();
+  }
 
   return (
     <main className="pb-24 overflow-x-hidden">
