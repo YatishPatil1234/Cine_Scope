@@ -1,5 +1,6 @@
 "use client";
 
+import ConfirmModal from "@/components/ConfirmModal";
 import MovieCard from "@/components/MovieCard";
 import { getWatchlist } from "@/lib/watchlist";
 import Link from "next/link";
@@ -8,6 +9,7 @@ import { useEffect, useState } from "react";
 export default function WatchlistPage() {
   const [movies, setMovies] = useState([]);
   const [mounted, setMounted] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setMovies(getWatchlist());
@@ -15,13 +17,9 @@ export default function WatchlistPage() {
   }, []);
 
   function clearWatchlist() {
-    const confirmClear = confirm(
-      "Are you sure you want to clear your entire watchlist?",
-    );
-    if (!confirmClear) return;
-
     localStorage.removeItem("watchlist");
     setMovies([]);
+    setIsModalOpen(false);
   }
 
   if (!mounted) return null; // Prevent hydration flicker
@@ -44,7 +42,7 @@ export default function WatchlistPage() {
 
         {movies.length > 0 && (
           <button
-            onClick={clearWatchlist}
+            onClick={() => setIsModalOpen(true)}
             className="cursor-pointer px-4 py-2 rounded-lg border border-border bg-card hover:bg-slate-800 transition text-sm font-medium text-foreground shadow-sm hover:shadow-md"
           >
             Clear Watchlist
@@ -74,11 +72,20 @@ export default function WatchlistPage() {
       ) : (
         /* GRID */
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 animate-in fade-in duration-300">
-          {movies?.map((movie) => (
+          {movies.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
       )}
+
+      {/* CONFIRM MODAL */}
+      <ConfirmModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={clearWatchlist}
+        title="Clear Watchlist?"
+        description="This action will permanently remove all saved movies from your watchlist."
+      />
     </main>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { LANGUAGES } from "@/lib/i18n";
 import { setLanguageCookie } from "@/lib/language";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -52,7 +51,7 @@ export default function Navbar({ initialLang = "en-US" }) {
 
         <nav className="flex items-center gap-5">
           {/* Language Toggle */}
-          <div className="flex items-center bg-slate-800/60 rounded-full p-1 backdrop-blur-md">
+          {/* <div className="flex items-center bg-slate-800/60 rounded-full p-1 backdrop-blur-md">
             {LANGUAGES.map(({ code, shortLabel }) => (
               <button
                 key={code}
@@ -66,7 +65,7 @@ export default function Navbar({ initialLang = "en-US" }) {
                 {shortLabel}
               </button>
             ))}
-          </div>
+          </div> */}
 
           {/* Animated underline links */}
           <NavLink href="/search">Search</NavLink>
