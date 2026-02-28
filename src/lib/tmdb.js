@@ -21,7 +21,6 @@ async function fetchFromTMDB(endpoint, language = DEFAULT_LANGUAGE) {
   if (!res.ok) {
     const error = await res.text();
     console.error("TMDB ERROR:", error);
-    console.error("URL:", url);
     throw new Error("Failed to fetch data");
   }
 

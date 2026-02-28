@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 const IMAGE_BASE = "https://image.tmdb.org/t/p";
 
@@ -64,7 +64,10 @@ export default function Hero({ featuredMovie = null }) {
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 sm:mt-6">
             {hasBackdrop && (
-              <Link href={`/movie/${featuredMovie.id}`} className="cursor-pointer">
+              <Link
+                href={`/movie/${featuredMovie.id}`}
+                className="cursor-pointer"
+              >
                 <Button
                   size="lg"
                   className="cursor-pointer bg-indigo-500 hover:bg-indigo-400 text-white shadow-lg shadow-indigo-500/25 h-11 px-5 text-sm font-medium rounded-lg"
