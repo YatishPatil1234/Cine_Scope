@@ -13,6 +13,7 @@ import {
 } from "@/lib/tmdb";
 import { cookies } from "next/headers";
 import Image from "next/image";
+import Link from "next/link";
 
 function formatMoney(value) {
   if (!value || value < 1000) return null;
@@ -118,20 +119,13 @@ export default async function MoviePage({ params }) {
             {/* Genres */}
             <div className="flex flex-wrap gap-3">
               {movie.genres?.map((genre) => (
-                <span
+                <Link
                   key={genre.id}
-                  className="
-          px-4 py-1.5
-          rounded-full
-          text-sm
-          bg-card/60
-          border border-slate-800
-          hover:border-indigo-500/40
-          transition
-        "
+                  href={`/genre/${genre.id}?name=${encodeURIComponent(genre.name)}`}
+                  className="px-4 py-1.5 rounded-full text-sm bg-card/60 border border-slate-800 hover:border-indigo-500/40 transition"
                 >
                   {genre.name}
-                </span>
+                </Link>
               ))}
             </div>
 

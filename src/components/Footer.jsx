@@ -19,6 +19,7 @@ export default function Footer() {
           {/* Links */}
           <nav className="flex items-center gap-6 text-sm">
             <FooterLink href="/search">Search</FooterLink>
+            <FooterLink href="/genres">Genres</FooterLink>
             <FooterLink href="/watchlist">Watchlist</FooterLink>
           </nav>
         </div>

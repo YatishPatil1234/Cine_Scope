@@ -70,6 +70,7 @@ export default function Navbar({ initialLang = "en-US" }) {
 
           {/* Animated underline links */}
           <NavLink href="/search">Search</NavLink>
+          <NavLink href="/genres">Genres</NavLink>
 
           <Link href="/watchlist">
             <Button className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full px-5 shadow-lg shadow-indigo-500/30">

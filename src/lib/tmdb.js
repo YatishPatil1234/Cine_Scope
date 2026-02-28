@@ -10,13 +10,20 @@ function appendLanguage(url, language) {
 }
 
 async function fetchFromTMDB(endpoint, language = DEFAULT_LANGUAGE) {
-  const url = appendLanguage(
-    `${BASE_URL}${endpoint}?api_key=${API_KEY}`,
-    language,
-  );
-  const res = await fetch(url, { next: { revalidate: 60 } });
+  const separator = endpoint.includes("?") ? "&" : "?";
 
-  if (!res.ok) throw new Error("Failed to fetch data");
+  const url = `${BASE_URL}${endpoint}${separator}api_key=${API_KEY}&language=${language}`;
+
+  const res = await fetch(url, {
+    next: { revalidate: 60 },
+  });
+
+  if (!res.ok) {
+    const error = await res.text();
+    console.error("TMDB ERROR:", error);
+    console.error("URL:", url);
+    throw new Error("Failed to fetch data");
+  }
 
   return res.json();
 }
@@ -113,6 +120,30 @@ export async function getMovieVideos(id, language = DEFAULT_LANGUAGE) {
 
 export async function getMovieReviews(id, language = DEFAULT_LANGUAGE) {
   return fetchFromTMDB(`/movie/${id}/reviews`, language);
+}
+
+export async function getPersonDetails(id, language = DEFAULT_LANGUAGE) {
+  return fetchFromTMDB(`/person/${id}`, language);
+}
+
+export async function getPersonMovieCredits(id, language = DEFAULT_LANGUAGE) {
+  return fetchFromTMDB(`/person/${id}/movie_credits`, language);
+}
+
+export async function getMoviesByGenre(
+  genreId,
+  language = DEFAULT_LANGUAGE,
+  page = 1,
+  sortBy = "popularity.desc",
+) {
+  return fetchFromTMDB(
+    `/discover/movie?with_genres=${genreId}&page=${page}&sort_by=${sortBy}`,
+    language,
+  );
+}
+
+export async function getAllGenres(language = DEFAULT_LANGUAGE) {
+  return fetchFromTMDB("/genre/movie/list", language);
 }
 
 export { DEFAULT_LANGUAGE };
