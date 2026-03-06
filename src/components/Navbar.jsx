@@ -1,83 +1,87 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { setLanguageCookie } from "@/lib/language";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function Navbar({ initialLang = "en-US" }) {
-  const router = useRouter();
+export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 10);
-    }
+    const handleScroll = () => setScrolled(window.scrollY > 10);
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  function handleLanguageChange(langCode) {
-    if (langCode === initialLang) return;
-    setLanguageCookie(langCode);
-    router.refresh();
-  }
-
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full transition-all duration-300 border-b border-slate-800/70 ${
         scrolled
           ? "bg-background/95 backdrop-blur-xl shadow-lg shadow-black/40"
-          : "bg-background/60 backdrop-blur-md"
+          : "bg-background/70 backdrop-blur-md"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        {/* LOGO WITH GLOW */}
+        {/* Logo */}
         <Link
           href="/"
-          className="relative text-xl font-semibold tracking-tight text-foreground group"
+          className="text-xl font-semibold tracking-tight text-foreground"
         >
-          <span className="relative z-10">
-            Cine<span className="text-indigo-500">Scope</span>
-          </span>
-
-          {/* Glow */}
-          <span className="absolute inset-0 blur-xl opacity-0 group-hover:opacity-60 transition duration-500 text-indigo-500">
-            CineScope
-          </span>
+          Cine<span className="text-indigo-500">Scope</span>
         </Link>
 
-        <nav className="flex items-center gap-5">
-          {/* Language Toggle */}
-          {/* <div className="flex items-center bg-slate-800/60 rounded-full p-1 backdrop-blur-md">
-            {LANGUAGES.map(({ code, shortLabel }) => (
-              <button
-                key={code}
-                onClick={() => handleLanguageChange(code)}
-                className={`px-3 py-1.5 text-xs rounded-full font-medium transition-all ${
-                  initialLang === code
-                    ? "bg-indigo-500 text-white shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {shortLabel}
-              </button>
-            ))}
-          </div> */}
-
-          {/* Animated underline links */}
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-6">
           <NavLink href="/search">Search</NavLink>
           <NavLink href="/genres">Genres</NavLink>
 
           <Link href="/watchlist">
-            <Button className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full px-5 shadow-lg shadow-indigo-500/30">
+            <Button className="bg-indigo-500 hover:bg-indigo-400 text-white rounded-full px-5">
               Watchlist
             </Button>
           </Link>
         </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="md:hidden text-foreground"
+        >
+          {open ? <X size={26} /> : <Menu size={26} />}
+        </button>
       </div>
+
+      {/* Mobile Dropdown */}
+      {open && (
+        <div className="md:hidden border-t border-slate-800 bg-background/95 backdrop-blur-xl">
+          <nav className="flex flex-col px-6 py-4 gap-4">
+            <Link
+              href="/search"
+              onClick={() => setOpen(false)}
+              className="text-muted-foreground hover:text-foreground text-lg"
+            >
+              Search
+            </Link>
+
+            <Link
+              href="/genres"
+              onClick={() => setOpen(false)}
+              className="text-muted-foreground hover:text-foreground text-lg"
+            >
+              Genres
+            </Link>
+
+            <Link href="/watchlist" onClick={() => setOpen(false)}>
+              <Button className="mt-2 w-full bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg">
+                Watchlist
+              </Button>
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
@@ -86,7 +90,7 @@ function NavLink({ href, children }) {
   return (
     <Link
       href={href}
-      className="relative text-muted-foreground hover:text-foreground transition-colors"
+      className="relative text-muted-foreground hover:text-foreground transition-colors group"
     >
       {children}
       <span className="absolute left-0 -bottom-1 h-[2px] w-0 bg-indigo-500 transition-all duration-300 group-hover:w-full" />
