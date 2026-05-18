@@ -12,7 +12,7 @@ export default function BioExpandable({ text }) {
           expanded ? "max-h-[1000px]" : "max-h-[140px]"
         } overflow-hidden`}
       >
-        <p className="text-base sm:text-lg leading-relaxed text-muted-foreground whitespace-pre-line">
+        <p className="text-sm sm:text-[15px] leading-relaxed text-zinc-400">
           {text}
         </p>
       </div>
@@ -22,8 +22,9 @@ export default function BioExpandable({ text }) {
       )}
 
       <button
+        type="button"
         onClick={() => setExpanded(!expanded)}
-        className="mt-4 text-sm font-medium text-indigo-400 hover:text-indigo-300 transition"
+        className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-full border border-border bg-white/[0.04] text-zinc-300 hover:text-white hover:border-indigo-500/50 hover:bg-indigo-500/15 transition-all duration-200"
       >
         {expanded ? "Show less" : "Read more"}
       </button>

@@ -1,15 +1,13 @@
-import { Skeleton } from "@/components/ui/skeleton";
-
 export default function MovieCardSkeleton() {
   return (
-    <div className="space-y-0 overflow-hidden rounded-xl border border-slate-800 bg-card">
-      <Skeleton
-        className="w-full rounded-t-xl rounded-b-none"
+    <div className="w-full animate-pulse">
+      <div
+        className="w-full rounded-xl bg-white/[0.05]"
         style={{ aspectRatio: "2/3" }}
       />
-      <div className="p-3 space-y-2">
-        <Skeleton className="h-4 w-4/5" />
-        <Skeleton className="h-3 w-1/3" />
+      <div className="mt-2 space-y-1.5 px-0.5">
+        <div className="h-3 w-4/5 rounded bg-white/[0.06]" />
+        <div className="h-2.5 w-1/3 rounded bg-white/[0.04]" />
       </div>
     </div>
   );

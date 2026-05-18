@@ -1,8 +1,8 @@
 import SectionLink from "@/components/SectionLink";
-import MovieCard from "./MovieCard";
+import TVCard from "./TVCard";
 
-export default function MovieSection({ title, movies, seeAllHref }) {
-  const list = movies ?? [];
+export default function HorizontalTVSection({ title, shows, seeAllHref }) {
+  const list = shows ?? [];
   if (list.length === 0) return null;
 
   return (
@@ -13,9 +13,11 @@ export default function MovieSection({ title, movies, seeAllHref }) {
           <SectionLink href={seeAllHref} size="sm">See all</SectionLink>
         )}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-        {list.slice(0, 12).map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
+      <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+        {list.slice(0, 14).map((show) => (
+          <div key={show.id} className="w-[130px] sm:w-[148px] shrink-0 snap-start">
+            <TVCard show={show} />
+          </div>
         ))}
       </div>
     </section>

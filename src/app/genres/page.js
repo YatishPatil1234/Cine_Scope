@@ -1,75 +1,74 @@
-import { getLanguageFromCookie } from "@/lib/language";
 import { getAllGenres } from "@/lib/tmdb";
-import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function GenresPage() {
-  const cookieStore = await cookies();
-  const lang = getLanguageFromCookie(cookieStore);
+export const revalidate = 86400;
 
-  const data = await getAllGenres(lang);
+export const metadata = {
+  title: "Browse Genres — CineScope",
+  description: "Explore movies by genre and find stories that match your mood.",
+};
+
+const GENRE_ICONS = {
+  28: "⚔️",
+  12: "🗺️",
+  16: "🎨",
+  35: "😂",
+  80: "🔫",
+  99: "📽️",
+  18: "🎭",
+  10751: "👨‍👩‍👧",
+  14: "🧙",
+  36: "🏛️",
+  27: "👻",
+  10402: "🎵",
+  9648: "🔍",
+  10749: "💕",
+  878: "🚀",
+  10770: "📺",
+  53: "🔪",
+  10752: "🪖",
+  37: "🤠",
+};
+
+export default async function GenresPage() {
+  const data = await getAllGenres();
   const genres = data?.genres || [];
 
-  if (!genres) {
-    notFound();
-  }
+  if (!genres.length) notFound();
 
   return (
     <main className="pb-24 overflow-x-hidden">
-      {/* HERO */}
-      <section className="relative py-24">
-        {/* Subtle Glow */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-indigo-500/5 blur-3xl rounded-full pointer-events-none" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
-            Browse Genres
-          </h1>
-
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+      <section className="relative py-12 sm:py-16 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-indigo-600/6 rounded-full blur-[120px] pointer-events-none" />
+        <div className="page-container relative">
+          <p className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-3">
+            Browse
+          </p>
+          <h1 className="page-heading mb-3">All Genres</h1>
+          <p className="text-zinc-400 text-base sm:text-lg max-w-md">
             Explore movies by genre and discover stories that match your mood.
           </p>
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent opacity-60 mb-16" />
+      <div className="page-container mb-8">
+        <div className="divider" />
+      </div>
 
-      {/* GENRE GRID */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+      <section className="page-container pb-16">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
           {genres.map((genre) => (
             <Link
               key={genre.id}
               href={`/genre/${genre.id}?name=${encodeURIComponent(genre.name)}`}
               className="group"
             >
-              <div
-                className="
-                  relative
-                  rounded-2xl
-                  bg-card/70
-                  backdrop-blur-md
-                  border border-slate-800
-                  p-8
-                  text-center
-                  transition-all duration-300
-                  hover:-translate-y-2
-                  hover:border-indigo-500/40
-                  hover:shadow-xl hover:shadow-black/30
-                "
-              >
-                {/* Subtle Hover Glow */}
-                <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition rounded-2xl pointer-events-none" />
-
-                <h2 className="relative text-lg font-semibold tracking-tight">
-                  {genre?.name}
+              <div className="relative rounded-xl bg-white/[0.03] border border-white/[0.07] p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/35 hover:bg-indigo-500/[0.06] hover:shadow-lg hover:shadow-indigo-950/30">
+                <span className="text-2xl mb-3 block">{GENRE_ICONS[genre.id] ?? "🎞️"}</span>
+                <h2 className="text-[15px] sm:text-base font-bold text-zinc-200 group-hover:text-white transition-colors">
+                  {genre.name}
                 </h2>
-
-                <p className="relative mt-2 text-sm text-muted-foreground">
-                  Explore {genre?.name?.toLowerCase()} movies
-                </p>
               </div>
             </Link>
           ))}

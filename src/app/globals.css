@@ -1,46 +1,188 @@
 @import "tailwindcss";
 
 :root {
-  /* Zinc-based dark theme (oklch 14.1% 0.005 285.823) */
-  --background: oklch(14.1% 0.005 285.823);
-  --foreground: oklch(98% 0 0);
+  --background: #080808;
+  --foreground: #f1f1f1;
 
-  --card: oklch(18% 0.005 285.823);
-  --card-hover: oklch(22% 0.005 285.823);
+  --card: #111111;
+  --card-hover: #181818;
   --card-foreground: var(--foreground);
 
-  --border: oklch(25% 0.005 285.823);
-  --input: oklch(25% 0.005 285.823);
+  --border: #262626;
+  --input: #1c1c1c;
 
-  --primary: theme(colors.indigo.500);
-  --primary-foreground: white;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
 
-  --muted: oklch(55% 0.005 285.823);
-  --muted-foreground: oklch(55% 0.005 285.823);
+  --muted: #52525b;
+  --muted-foreground: #a1a1aa;
 
   --radius: 0.75rem;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --font-sans: var(--font-sans);
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  font-size: 16px;  /* Tailwind base — text-sm = 14px, text-base = 16px */
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 1rem;   /* 16px */
+  line-height: 1.65;
 }
 
-/* Interactive elements: pointer cursor */
-a,
-button,
-[role="button"],
-input[type="submit"],
-input[type="button"],
+/* ─── Layout ─────────────────────────────────────────── */
+.page-container {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 480px) {
+  .page-container {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* ─── Typography ─────────────────────────────────────── */
+
+/* Eyebrow labels — small caps above headings */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #818cf8; /* indigo-400 */
+}
+
+/* Section title — used in MovieSection, TVSection, Cast etc. */
+.section-title {
+  font-size: 1.2rem;        /* 19px */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .section-title {
+    font-size: 1.45rem;     /* 23px */
+  }
+}
+
+/* Page heading — used on Discover, Genres, TV etc. */
+.page-heading {
+  font-size: 2rem;          /* 32px */
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .page-heading {
+    font-size: 2.75rem;     /* 44px */
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-heading {
+    font-size: 3.2rem;      /* 51px */
+  }
+}
+
+/* ─── Interactive ────────────────────────────────────── */
+a, button, [role="button"],
+input[type="submit"], input[type="button"],
 [data-slot="button"] {
   cursor: pointer;
 }
 
-/* Scroll without visible scrollbar */
+/* ─── Scrollbars ─────────────────────────────────────── */
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* ─── Animations ─────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in { animation: fade-in 0.3s ease-out both; }
+.animate-fade-up { animation: fade-up 0.4s ease-out both; }
+
+/* ─── Card overlay gradient ──────────────────────────── */
+.card-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.90) 0%,
+    rgba(0,0,0,0.55) 40%,
+    rgba(0,0,0,0) 70%
+  );
+}
+
+/* ─── Divider ─────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #303030, transparent);
+}
+
+/* ─── Inputs ─────────────────────────────────────────── */
+.input-base {
+  background: #1c1c1c;
+  border: 1.5px solid #333333;
+  color: var(--foreground);
+  border-radius: 0.75rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-base:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+.input-base::placeholder {
+  color: #555555;
 }

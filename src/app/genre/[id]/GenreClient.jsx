@@ -1,8 +1,9 @@
 "use client";
 
 import MovieCard from "@/components/MovieCard";
-import { getMoviesByGenre } from "@/lib/tmdb";
-import { useState } from "react";
+import MovieCardSkeleton from "@/components/MovieCardSkeleton";
+import Pagination from "@/components/Pagination";
+import { useCallback, useState } from "react";
 
 const SORT_OPTIONS = [
   { label: "Popularity", value: "popularity.desc" },
@@ -10,73 +11,86 @@ const SORT_OPTIONS = [
   { label: "Release Date", value: "primary_release_date.desc" },
 ];
 
-export default function GenreClient({ genreId, genreName, initialData, lang }) {
+export default function GenreClient({ genreId, genreName, initialData }) {
   const [movies, setMovies] = useState(initialData.results || []);
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(
+    Math.min(initialData.total_pages ?? 1, 500),
+  );
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [loading, setLoading] = useState(false);
-  const totalPages = initialData.total_pages;
 
-  async function loadMore() {
-    if (loading || page >= totalPages) return;
+  const fetchPage = useCallback(
+    async (pageNum, sort, scrollTop = false) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          genreId: String(genreId),
+          page: String(pageNum),
+          sort,
+        });
+        const res = await fetch(`/api/genre?${params}`);
+        const data = await res.json();
+        setMovies(data.results ?? []);
+        setPage(pageNum);
+        setTotalPages(Math.min(data.total_pages ?? 1, 500));
+        if (scrollTop) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      } catch {
+        setMovies([]);
+      }
+      setLoading(false);
+    },
+    [genreId],
+  );
 
-    setLoading(true);
-    const nextPage = page + 1;
-
-    const data = await getMoviesByGenre(genreId, lang, nextPage, sortBy);
-
-    setMovies((prev) => [...prev, ...data.results]);
-    setPage(nextPage);
-    setLoading(false);
-  }
-
-  async function handleSort(newSort) {
+  const handleSort = (newSort) => {
+    if (newSort === sortBy) return;
     setSortBy(newSort);
-    setLoading(true);
+    fetchPage(1, newSort, true);
+  };
 
-    const data = await getMoviesByGenre(genreId, lang, 1, newSort);
-
-    setMovies(data.results || []);
-    setPage(1);
-    setLoading(false);
-  }
+  const handlePageChange = (nextPage) => {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page || loading) return;
+    fetchPage(nextPage, sortBy, true);
+  };
 
   return (
     <main className="pb-24 overflow-x-hidden">
-      {/* HERO */}
-      <section className="relative py-24">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-indigo-500/5 blur-3xl rounded-full pointer-events-none" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
-            {genreName}
-          </h1>
-
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+      <section className="relative py-12 sm:py-16 overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[280px] bg-indigo-600/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="page-container relative">
+          <p className="text-xs font-bold uppercase tracking-widest text-indigo-400 mb-3">
+            Genre
+          </p>
+          <h1 className="page-heading mb-2">{genreName}</h1>
+          <p className="text-zinc-400 text-sm max-w-md">
             Discover curated {genreName.toLowerCase()} films.
           </p>
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-800 to-transparent opacity-60 mb-16" />
+      <div className="page-container mb-6">
+        <div className="divider" />
+      </div>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Modern Control Bar */}
-        <div className="mb-10 bg-card/60 backdrop-blur-md border border-slate-800 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            {movies.length} movies
+      <section className="page-container pb-16">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-zinc-500 font-medium">
+            Page {page} of {totalPages}
           </p>
-
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
             {SORT_OPTIONS.map((option) => (
               <button
                 key={option.value}
+                type="button"
                 onClick={() => handleSort(option.value)}
-                className={`px-4 py-2 rounded-full text-sm border transition ${
+                disabled={loading}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 disabled:opacity-50 ${
                   sortBy === option.value
-                    ? "border-indigo-500/40 bg-indigo-500/10 text-indigo-400"
-                    : "border-slate-800 bg-card/60 hover:border-indigo-500/30"
+                    ? "border-indigo-500/50 bg-indigo-600/20 text-indigo-300"
+                    : "border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:text-zinc-200 hover:border-white/[0.16]"
                 }`}
               >
                 {option.label}
@@ -85,31 +99,29 @@ export default function GenreClient({ genreId, genreName, initialData, lang }) {
           </div>
         </div>
 
-        {/* MOVIE GRID */}
-        {movies.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            No movies found.
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <MovieCardSkeleton key={i} />
+            ))}
           </div>
+        ) : movies.length === 0 ? (
+          <p className="text-center text-zinc-500 py-20 text-sm">
+            No movies found.
+          </p>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
               {movies.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} />
               ))}
             </div>
-
-            {/* Load More */}
-            {page < totalPages && (
-              <div className="flex justify-center mt-16">
-                <button
-                  onClick={loadMore}
-                  disabled={loading}
-                  className="px-6 py-3 rounded-xl bg-card/70 border border-slate-800 hover:border-indigo-500/40 transition shadow-md hover:shadow-lg"
-                >
-                  {loading ? "Loading..." : "Load More"}
-                </button>
-              </div>
-            )}
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              className="mt-10"
+            />
           </>
         )}
       </section>
