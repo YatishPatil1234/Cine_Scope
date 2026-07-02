@@ -34,6 +34,9 @@ export default function SearchPage() {
   const [loading, setLoading]   = useState(false);
   const [searched, setSearched] = useState(false);
   const inputRef = useRef(null);
+  // Session-scoped cache — retyping/backspacing to a previous query
+  // (very common while typing) is served instantly with zero network cost.
+  const cacheRef = useRef(new Map());
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
@@ -49,6 +52,12 @@ export default function SearchPage() {
   async function doSearch(controller) {
     setLoading(true);
     setSearched(true);
+    const key = `${type}:${query.trim().toLowerCase()}`;
+    if (cacheRef.current.has(key)) {
+      setResults(cacheRef.current.get(key));
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch(
         `/api/search?q=${encodeURIComponent(query)}&type=${type}`,
@@ -56,7 +65,9 @@ export default function SearchPage() {
       );
       if (!res.ok) throw new Error("fail");
       const data = await res.json();
-      setResults(data.results ?? []);
+      const list = data.results ?? [];
+      cacheRef.current.set(key, list);
+      setResults(list);
     } catch (e) {
       if (e.name !== "AbortError") setResults([]);
     }
@@ -94,7 +105,7 @@ export default function SearchPage() {
                 key={tab.id}
                 type="button"
                 onClick={() => setType(tab.id)}
-                className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-[15px] font-semibold transition-all duration-200 ${
+                className={`inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 rounded-full text-sm sm:text-[15px] font-semibold transition-all duration-200 ${
                   type === tab.id
                     ? "bg-indigo-600 text-white shadow-lg shadow-indigo-950/50"
                     : "text-zinc-300 hover:text-white"
@@ -105,7 +116,7 @@ export default function SearchPage() {
                     : { background: "#1e1e1e", border: "1.5px solid #333" }
                 }
               >
-                <span className="text-lg leading-none">{tab.icon}</span>
+                <span className="text-base sm:text-lg leading-none">{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
@@ -115,7 +126,7 @@ export default function SearchPage() {
           <div className="relative w-full">
             <Search
               size={20}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
+              className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none"
             />
             <input
               ref={inputRef}
@@ -125,12 +136,12 @@ export default function SearchPage() {
               placeholder={PLACEHOLDERS[type]}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full py-4 pl-13 pr-14 rounded-2xl text-white text-lg font-medium placeholder-zinc-500 transition-all duration-200"
+              className="w-full py-3.5 sm:py-4 pl-12 sm:pl-14 pr-12 sm:pr-14 rounded-2xl text-white font-medium placeholder-zinc-500 transition-all duration-200"
               style={{
                 background: "#1c1c1c",
                 border: "2px solid #383838",
                 outline: "none",
-                fontSize: "17px",
+                fontSize: "16px",
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "#6366f1";
@@ -141,7 +152,7 @@ export default function SearchPage() {
                 e.target.style.boxShadow = "none";
               }}
             />
-            {query.length > 0 && (
+            {query.length > 0 ? (
               <button
                 type="button"
                 onClick={() => { setQuery(""); inputRef.current?.focus(); }}
@@ -150,6 +161,10 @@ export default function SearchPage() {
               >
                 <X size={16} />
               </button>
+            ) : (
+              <kbd className="absolute right-4 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold text-zinc-500 border border-zinc-700 bg-zinc-800/50">
+                /
+              </kbd>
             )}
           </div>
         </div>

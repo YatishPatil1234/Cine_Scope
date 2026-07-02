@@ -1,6 +1,7 @@
 "use client";
 
 import WatchProviders from "@/components/WatchProviders";
+import { cachedFetchJSON, TTL } from "@/lib/clientCache";
 import { useEffect, useRef, useState } from "react";
 
 export default function LazyWatchProviders({ mediaType, id }) {
@@ -19,9 +20,12 @@ export default function LazyWatchProviders({ mediaType, id }) {
         fetched.current = true;
         setLoading(true);
 
-        fetch(`/api/${mediaType}/${id}/watch-providers`)
-          .then((r) => (r.ok ? r.json() : null))
+        cachedFetchJSON(`/api/${mediaType}/${id}/watch-providers`, {
+          ttl: TTL.DAY,
+          cacheKey: `wp:${mediaType}:${id}`,
+        })
           .then(setData)
+          .catch(() => setData(null))
           .finally(() => setLoading(false));
       },
       { rootMargin: "120px" },

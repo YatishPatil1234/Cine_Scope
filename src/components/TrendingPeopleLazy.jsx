@@ -1,6 +1,7 @@
 "use client";
 
 import PersonCard from "@/components/PersonCard";
+import { cachedFetchJSON, TTL } from "@/lib/clientCache";
 import { useEffect, useRef, useState } from "react";
 
 export default function TrendingPeopleLazy({ title = "Trending People" }) {
@@ -18,9 +19,9 @@ export default function TrendingPeopleLazy({ title = "Trending People" }) {
         if (!entry.isIntersecting || fetched.current) return;
         fetched.current = true;
         setLoading(true);
-        fetch("/api/trending/people")
-          .then((r) => (r.ok ? r.json() : { results: [] }))
+        cachedFetchJSON("/api/trending/people", { ttl: TTL.HALF_DAY, cacheKey: "trending-people" })
           .then((d) => setPeople(d.results ?? []))
+          .catch(() => setPeople([]))
           .finally(() => setLoading(false));
       },
       { rootMargin: "200px" },
@@ -49,7 +50,7 @@ export default function TrendingPeopleLazy({ title = "Trending People" }) {
           ))}
         </div>
       ) : (
-        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar snap-x snap-mandatory">
           {list.slice(0, 16).map((person) => (
             <div key={person.id} className="snap-start shrink-0">
               <PersonCard person={person} />

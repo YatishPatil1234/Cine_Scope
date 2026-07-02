@@ -240,6 +240,11 @@ export const getTVWatchProviders = cache((id) =>
   fetchFromTMDB(`/tv/${id}/watch/providers`, DEFAULT_LANGUAGE, CACHE.MOVIE),
 );
 
+/** IMDb id for a TV show — needed to fetch OMDB multi-source ratings. */
+export const getTVExternalIds = cache((id) =>
+  fetchFromTMDB(`/tv/${id}/external_ids`, DEFAULT_LANGUAGE, CACHE.MOVIE),
+);
+
 export const searchTV = cache(async (query, language = DEFAULT_LANGUAGE) => {
   if (!API_KEY) throw new Error("TMDB API key is not configured");
 

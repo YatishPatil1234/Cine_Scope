@@ -45,14 +45,17 @@ export default async function UpcomingPage() {
   const months  = Object.keys(grouped);
 
   return (
-    <main className="min-h-screen pb-20">
+    <main className="min-h-screen pb-20 overflow-x-hidden">
       {/* Header */}
-      <section className="page-container pt-10 pb-8 sm:pt-14 sm:pb-10">
-        <p className="eyebrow text-indigo-400 mb-2">Coming Soon</p>
-        <h1 className="page-heading mb-3">Upcoming Movies</h1>
-        <p className="text-zinc-400 text-base sm:text-lg max-w-lg">
-          Movies heading to theaters — sorted by release date.
-        </p>
+      <section className="relative pt-12 pb-10 sm:pt-16 sm:pb-12 overflow-hidden">
+        <div className="absolute top-0 left-0 w-[500px] h-[300px] bg-amber-600/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="page-container relative">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-3">Coming Soon</p>
+          <h1 className="page-heading mb-3">Upcoming Movies</h1>
+          <p className="text-zinc-400 text-base sm:text-lg max-w-lg">
+            Movies heading to theaters — sorted by release date.
+          </p>
+        </div>
       </section>
 
       <div className="page-container">
@@ -63,13 +66,19 @@ export default async function UpcomingPage() {
           </div>
         )}
 
-        {months.map((month) => (
+        {months.map((month, mi) => (
           <section key={month} className="mb-12">
             {/* Month divider */}
             <div className="flex items-center gap-3 mb-5">
-              <span className="text-base font-bold text-zinc-300">{month}</span>
+              <span
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-extrabold text-amber-300 border border-amber-400/20"
+                style={{ background: "rgba(245,158,11,0.07)" }}
+              >
+                <Calendar size={13} />
+                {month}
+              </span>
               <div className="flex-1 h-px bg-white/[0.06]" />
-              <span className="text-xs font-semibold text-zinc-600">
+              <span className="text-xs font-bold text-zinc-600">
                 {grouped[month].length} film{grouped[month].length !== 1 ? "s" : ""}
               </span>
             </div>
@@ -86,6 +95,11 @@ export default async function UpcomingPage() {
   );
 }
 
+function daysUntil(dateStr) {
+  const diff = new Date(dateStr).getTime() - Date.now();
+  return Math.ceil(diff / 86400000);
+}
+
 function UpcomingCard({ movie }) {
   const releaseDate = movie.release_date
     ? new Date(movie.release_date).toLocaleDateString("en-US", {
@@ -93,14 +107,22 @@ function UpcomingCard({ movie }) {
         month: "short",
       })
     : null;
+  const days = movie.release_date ? daysUntil(movie.release_date) : null;
 
   return (
     <div className="relative group">
       <MovieCard movie={movie} />
       {releaseDate && (
-        <div className="mt-1 flex items-center gap-1 text-xs text-indigo-400 font-semibold">
-          <Calendar size={11} />
-          {releaseDate}
+        <div className="mt-1 flex items-center justify-between gap-1">
+          <span className="flex items-center gap-1 text-[11px] text-amber-400 font-bold">
+            <Calendar size={10} />
+            {releaseDate}
+          </span>
+          {days != null && days <= 30 && days > 0 && (
+            <span className="text-[10px] font-extrabold text-zinc-500 uppercase tracking-wide">
+              in {days}d
+            </span>
+          )}
         </div>
       )}
     </div>

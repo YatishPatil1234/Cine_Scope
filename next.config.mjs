@@ -1,7 +1,21 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // ── Compression ────────────────────────────────────────────────────────────
   compress: true,
+
+  // A stray package-lock.json in the user's home directory was causing
+  // Turbopack to infer the wrong workspace root, which in turn made its
+  // persistent disk cache resolve OUTSIDE this project — leading to stale
+  // cached renders (e.g. Navbar hydration mismatches) surviving even a
+  // full restart. Pinning the root here fixes both issues for good.
+  turbopack: {
+    root: __dirname,
+  },
 
   // ── Images ─────────────────────────────────────────────────────────────────
   // CRITICAL COST SAVING: Skip Next.js image re-optimization for TMDB images.

@@ -5,19 +5,23 @@ export const runtime = "edge";
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const page = Number(searchParams.get("page") || "1");
-  const sortBy = searchParams.get("sort") || "popularity.desc";
-  const genre = searchParams.get("genre");
-  const year = searchParams.get("year");
-  const minRating = searchParams.get("minRating");
+  const page      = Number(searchParams.get("page")     || "1");
+  const sortBy    = searchParams.get("sort")             || "popularity.desc";
+  const genre     = searchParams.get("genre")            || undefined;
+  const year      = searchParams.get("year")             || undefined;
+  const minRating = searchParams.get("minRating")        || undefined;
+  const dateFrom  = searchParams.get("dateFrom")         || undefined;
+  const dateTo    = searchParams.get("dateTo")           || undefined;
 
   try {
     const data = await getDiscoverMovies({
       page,
       sortBy,
-      withGenres: genre || undefined,
-      primaryReleaseYear: year ? Number(year) : undefined,
-      voteAverageGte: minRating ? Number(minRating) : undefined,
+      withGenres:            genre     || undefined,
+      primaryReleaseYear:    year      ? Number(year) : undefined,
+      voteAverageGte:        minRating ? Number(minRating) : undefined,
+      primaryReleaseDateGte: dateFrom  || undefined,
+      primaryReleaseDateLte: dateTo    || undefined,
     });
 
     return NextResponse.json(data, {

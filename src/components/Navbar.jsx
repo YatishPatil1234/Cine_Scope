@@ -8,9 +8,12 @@ import { useEffect, useState } from "react";
 const NAV_LINKS = [
   { href: "/discover", label: "Discover" },
   { href: "/tv",       label: "TV Shows" },
+  { href: "/mood",     label: "Mood"     },
+  { href: "/decades",  label: "Decades"  },
   { href: "/upcoming", label: "Upcoming" },
   { href: "/genres",   label: "Genres"   },
   { href: "/search",   label: "Search"   },
+  { href: "/stats",    label: "Stats"    },
 ];
 
 export default function Navbar() {
@@ -78,9 +81,9 @@ export default function Navbar() {
 
           {/* Desktop CTA */}
           <div className="hidden md:block shrink-0">
-            <Link href="/watchlist">
+            <Link href="/lists">
               <span className="inline-flex items-center h-9 px-5 rounded-full text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all duration-200 shadow-lg shadow-indigo-950/40">
-                Watchlist
+                My Lists
               </span>
             </Link>
           </div>
@@ -141,11 +144,11 @@ export default function Navbar() {
 
           <div className="page-container pb-5">
             <Link
-              href="/watchlist"
+              href="/lists"
               onClick={() => setOpen(false)}
               className="flex items-center justify-center h-11 w-full rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-all"
             >
-              Watchlist
+              My Lists
             </Link>
           </div>
         </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 
 export default function BackdropImage({ src, alt, className = "" }) {
@@ -16,14 +15,13 @@ export default function BackdropImage({ src, alt, className = "" }) {
   }
 
   return (
-    <Image
+    <img
       src={src}
       alt={alt}
-      fill
-      className={className}
+      decoding="async"
       onError={() => setBroken(true)}
-      sizes="100vw"
-      priority
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+      className={className}
     />
   );
 }

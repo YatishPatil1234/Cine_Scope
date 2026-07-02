@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 
 export default function TVSeasons({ seasons }) {
@@ -60,12 +59,13 @@ function SeasonCard({ season }) {
       {/* Poster */}
       <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-zinc-900 border border-white/[0.07] shadow-lg">
         {season.poster_path ? (
-          <Image
+          <img
             src={`https://image.tmdb.org/t/p/w342${season.poster_path}`}
             alt={label}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-            sizes="(max-width:640px) 33vw, (max-width:1024px) 25vw, 185px"
+            loading="lazy"
+            decoding="async"
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+            className="transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-3xl text-zinc-700">

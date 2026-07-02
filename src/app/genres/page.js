@@ -9,26 +9,26 @@ export const metadata = {
   description: "Explore movies by genre and find stories that match your mood.",
 };
 
-const GENRE_ICONS = {
-  28: "⚔️",
-  12: "🗺️",
-  16: "🎨",
-  35: "😂",
-  80: "🔫",
-  99: "📽️",
-  18: "🎭",
-  10751: "👨‍👩‍👧",
-  14: "🧙",
-  36: "🏛️",
-  27: "👻",
-  10402: "🎵",
-  9648: "🔍",
-  10749: "💕",
-  878: "🚀",
-  10770: "📺",
-  53: "🔪",
-  10752: "🪖",
-  37: "🤠",
+const GENRE_META = {
+  28:    { icon: "⚔️",  color: "#ef4444" },
+  12:    { icon: "🗺️",  color: "#fb923c" },
+  16:    { icon: "🎨",  color: "#34d399" },
+  35:    { icon: "😂",  color: "#f59e0b" },
+  80:    { icon: "🔫",  color: "#94a3b8" },
+  99:    { icon: "📽️",  color: "#a78bfa" },
+  18:    { icon: "🎭",  color: "#6366f1" },
+  10751: { icon: "👨‍👩‍👧", color: "#4ade80" },
+  14:    { icon: "🧙",  color: "#818cf8" },
+  36:    { icon: "🏛️",  color: "#d4a373" },
+  27:    { icon: "👻",  color: "#ec4899" },
+  10402: { icon: "🎵",  color: "#f472b6" },
+  9648:  { icon: "🔍",  color: "#38bdf8" },
+  10749: { icon: "💕",  color: "#e879f9" },
+  878:   { icon: "🚀",  color: "#22d3ee" },
+  10770: { icon: "📺",  color: "#60a5fa" },
+  53:    { icon: "🔪",  color: "#f97316" },
+  10752: { icon: "🪖",  color: "#84cc16" },
+  37:    { icon: "🤠",  color: "#eab308" },
 };
 
 export default async function GenresPage() {
@@ -52,26 +52,44 @@ export default async function GenresPage() {
         </div>
       </section>
 
-      <div className="page-container mb-8">
-        <div className="divider" />
-      </div>
-
       <section className="page-container pb-16">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {genres.map((genre) => (
-            <Link
-              key={genre.id}
-              href={`/genre/${genre.id}?name=${encodeURIComponent(genre.name)}`}
-              className="group"
-            >
-              <div className="relative rounded-xl bg-white/[0.03] border border-white/[0.07] p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/35 hover:bg-indigo-500/[0.06] hover:shadow-lg hover:shadow-indigo-950/30">
-                <span className="text-2xl mb-3 block">{GENRE_ICONS[genre.id] ?? "🎞️"}</span>
-                <h2 className="text-[15px] sm:text-base font-bold text-zinc-200 group-hover:text-white transition-colors">
-                  {genre.name}
-                </h2>
-              </div>
-            </Link>
-          ))}
+          {genres.map((genre) => {
+            const meta  = GENRE_META[genre.id] ?? { icon: "🎞️", color: "#6366f1" };
+            return (
+              <Link
+                key={genre.id}
+                href={`/genre/${genre.id}?name=${encodeURIComponent(genre.name)}`}
+                className="group"
+              >
+                <div
+                  className="relative overflow-hidden rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border"
+                  style={{
+                    background: `linear-gradient(135deg, ${meta.color}12 0%, rgba(255,255,255,0.015) 65%)`,
+                    borderColor: `${meta.color}22`,
+                  }}
+                >
+                  {/* Corner glow on hover */}
+                  <div
+                    className="absolute -top-6 -right-6 w-20 h-20 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-300"
+                    style={{ background: meta.color }}
+                  />
+                  <span className="text-[26px] mb-3 block leading-none">{meta.icon}</span>
+                  <h2
+                    className="text-[15px] sm:text-base font-bold text-zinc-200 group-hover:text-white transition-colors"
+                  >
+                    {genre.name}
+                  </h2>
+                  <span
+                    className="mt-1.5 inline-block text-[11px] font-bold opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0"
+                    style={{ color: meta.color }}
+                  >
+                    Explore →
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
     </main>

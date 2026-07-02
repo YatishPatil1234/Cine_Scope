@@ -9,9 +9,9 @@ export const posterCardUrl = (path) =>
 export const posterUrl = (path) =>
   path ? `${base}/w500${path}` : null;
 
-/** Hero / detail backdrops — w780 instead of w1280/original */
-export const backdropUrl = (path) =>
-  path ? `${base}/w780${path}` : null;
+/** Hero / detail backdrops — w1280 for hero, w780 for detail */
+export const backdropUrl = (path, size = "w780") =>
+  path ? `${base}/${size}${path}` : null;
 
 export const profileUrl = (path) =>
   path ? `${base}/w185${path}` : null;

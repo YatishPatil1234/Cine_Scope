@@ -1,6 +1,10 @@
 import BackdropImage from "@/components/BackdropImage";
 import CastCard from "@/components/CastCard";
-import LazyRecommendations from "@/components/LazyRecommendations";
+import ListsButton from "@/components/ListsButton";
+import MediaExtras from "@/components/MediaExtras";
+import MultiRatings from "@/components/MultiRatings";
+import RatingWidget from "@/components/RatingWidget";
+import ShareButton from "@/components/ShareButton";
 import LazyWatchProviders from "@/components/LazyWatchProviders";
 import TrailerModal from "@/components/TrailerModal";
 import TVCard from "@/components/TVCard";
@@ -10,9 +14,10 @@ import {
   getSimilarTV,
   getTVCredits,
   getTVDetails,
+  getTVExternalIds,
   getTVVideos,
 } from "@/lib/tmdb";
-import Image from "next/image";
+import TrackView from "@/components/TrackView";
 import { notFound } from "next/navigation";
 
 export const revalidate = 86400;
@@ -58,14 +63,17 @@ export async function generateMetadata({ params }) {
 export default async function TVDetailPage({ params }) {
   const { id } = await params;
 
-  const [show, credits, similar, videos] = await Promise.all([
+  const [show, credits, similar, videos, externalIds] = await Promise.all([
     getTVDetails(id),
     getTVCredits(id),
     getSimilarTV(id),
     getTVVideos(id),
+    getTVExternalIds(id).catch(() => null),
   ]);
 
   if (!show || show.success === false) notFound();
+
+  const imdbId = externalIds?.imdb_id || null;
 
   const backdropSrc = backdropUrl(show.backdrop_path);
   const posterSrc   = posterUrl(show.poster_path);
@@ -76,6 +84,14 @@ export default async function TVDetailPage({ params }) {
 
   return (
     <main className="pb-16 sm:pb-24 overflow-x-hidden w-full">
+      <TrackView
+        id={show.id}
+        title={show.name}
+        poster_path={show.poster_path}
+        vote_average={show.vote_average}
+        release_date={show.first_air_date}
+        mediaType="tv"
+      />
 
       {/* ── Backdrop ─────────────────────────────────────── */}
       <div className="relative h-[38vw] min-h-[200px] max-h-[460px] w-full overflow-hidden">
@@ -93,7 +109,13 @@ export default async function TVDetailPage({ params }) {
           <div className="flex-shrink-0 w-[120px] sm:w-[180px] md:w-[220px] mx-auto sm:mx-0">
             <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl shadow-black/70 border border-white/[0.08]">
               {posterSrc ? (
-                <Image src={posterSrc} alt={show.name} fill priority className="object-cover" />
+                <img
+                  src={posterSrc}
+                  alt={show.name}
+                  fetchPriority="high"
+                  decoding="async"
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                />
               ) : (
                 <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center text-4xl">📺</div>
               )}
@@ -162,8 +184,16 @@ export default async function TVDetailPage({ params }) {
               </p>
             )}
 
+            {imdbId && <MultiRatings imdbId={imdbId} />}
+
             <div className="flex flex-wrap gap-2.5 pt-1">
+              <ListsButton movie={{ id: show.id, title: show.name, poster_path: show.poster_path, vote_average: show.vote_average, first_air_date: show.first_air_date }} mediaType="tv" />
               <TrailerModal videos={videos} />
+              <ShareButton title={show.name} />
+            </div>
+
+            <div className="pt-2 max-w-xs">
+              <RatingWidget id={show.id} mediaType="tv" />
             </div>
 
             <LazyWatchProviders mediaType="tv" id={id} />
@@ -181,7 +211,7 @@ export default async function TVDetailPage({ params }) {
         {(credits.cast?.length ?? 0) > 0 && (
           <section className="mt-12 sm:mt-16">
             <h2 className="section-title mb-4">Cast</h2>
-            <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar">
               {credits.cast.slice(0, 16).map((actor) => (
                 <CastCard key={actor.id} actor={actor} />
               ))}
@@ -201,7 +231,7 @@ export default async function TVDetailPage({ params }) {
           </section>
         )}
 
-        <LazyRecommendations mediaType="tv" id={id} title="You may also like" />
+        <MediaExtras mediaType="tv" id={id} title="You may also like" />
       </div>
     </main>
   );

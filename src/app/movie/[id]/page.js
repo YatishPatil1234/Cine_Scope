@@ -1,11 +1,14 @@
 import BackdropImage from "@/components/BackdropImage";
 import CastCard from "@/components/CastCard";
-import LazyRecommendations from "@/components/LazyRecommendations";
 import LazyWatchProviders from "@/components/LazyWatchProviders";
+import ListsButton from "@/components/ListsButton";
+import MediaExtras from "@/components/MediaExtras";
 import MovieCard from "@/components/MovieCard";
-import MovieReviews from "@/components/MovieReviews";
+import MultiRatings from "@/components/MultiRatings";
+import RatingWidget from "@/components/RatingWidget";
+import ShareButton from "@/components/ShareButton";
+import TrackView from "@/components/TrackView";
 import TrailerModal from "@/components/TrailerModal";
-import WatchlistButton from "@/components/WatchListButton";
 import { backdropUrl } from "@/lib/images";
 import {
   getMovieCollection,
@@ -14,7 +17,6 @@ import {
   getMovieVideos,
   getSimilarMovies,
 } from "@/lib/tmdb";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -93,68 +95,83 @@ export default async function MoviePage({ params }) {
 
   return (
     <main className="pb-16 sm:pb-24 overflow-x-hidden w-full">
+      <TrackView
+        id={movie.id}
+        title={movie.title}
+        poster_path={movie.poster_path}
+        vote_average={movie.vote_average}
+        release_date={movie.release_date}
+        mediaType="movie"
+      />
 
-      {/* ── Backdrop ─────────────────────────────────────── */}
-      <div className="relative h-[38vw] min-h-[200px] max-h-[460px] w-full overflow-hidden">
-        <BackdropImage src={backdropSrc} alt={movie.title} className="object-cover opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080808]/60 via-[#080808]/40 to-[#080808]" />
+      {/* ── Cinematic backdrop ───────────────────────────── */}
+      <div className="relative h-[44vw] min-h-[220px] max-h-[520px] w-full overflow-hidden">
+        <BackdropImage src={backdropSrc} alt={movie.title} className="object-cover opacity-50 scale-[1.03]" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.5) 0%, rgba(8,8,8,0.3) 40%, rgba(8,8,8,1) 100%)" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to right, rgba(8,8,8,0.6) 0%, transparent 60%)" }} />
       </div>
 
       {/* ── Main content ─────────────────────────────────── */}
-      <div className="page-container -mt-16 sm:-mt-24 md:-mt-32 relative z-10">
+      <div className="page-container -mt-20 sm:-mt-28 md:-mt-36 relative z-10">
 
         {/* Poster + Info row */}
-        <div className="flex flex-col sm:flex-row gap-5 sm:gap-7 md:gap-10">
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 md:gap-12">
 
           {/* Poster */}
-          <div className="flex-shrink-0 w-[120px] sm:w-[180px] md:w-[220px] mx-auto sm:mx-0">
-            <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl shadow-black/70 border border-white/[0.08]">
+          <div className="flex-shrink-0 w-[130px] sm:w-[190px] md:w-[230px] mx-auto sm:mx-0">
+            <div className="relative aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_20px_70px_rgba(0,0,0,0.8)] border border-white/[0.1]">
               {movie.poster_path ? (
-                <Image
+                <img
                   src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                   alt={movie.title}
-                  fill
-                  priority
-                  className="object-cover"
+                  fetchPriority="high"
+                  decoding="async"
+                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
                 <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center text-4xl">🎬</div>
               )}
+              {/* Sheen */}
+              <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%)" }} />
             </div>
           </div>
 
           {/* Info */}
-          <div className="flex-1 min-w-0 space-y-3 sm:space-y-4">
+          <div className="flex-1 min-w-0 space-y-4 sm:space-y-5">
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight text-white break-words">
+              {tagline && (
+                <p className="italic text-xs sm:text-sm text-zinc-500 mb-2">&ldquo;{tagline}&rdquo;</p>
+              )}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-extrabold tracking-tight leading-[1.07] text-white break-words">
                 {movie.title}
               </h1>
+              {movie.original_title && movie.original_title !== movie.title && (
+                <p className="text-sm text-zinc-600 mt-1">{movie.original_title}</p>
+              )}
 
               {/* Meta chips */}
-              <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                <span className="inline-flex items-center gap-0.5 text-yellow-400 text-xs font-bold px-2 py-0.5 rounded-md bg-yellow-400/10 border border-yellow-400/20">
-                  ★ {voteAvg}
-                </span>
+              <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                {voteAvg !== "—" && (
+                  <span className="inline-flex items-center gap-1 text-yellow-400 text-xs font-extrabold px-2.5 py-1 rounded-lg bg-yellow-400/10 border border-yellow-400/20">
+                    ★ {voteAvg}
+                  </span>
+                )}
                 {releaseDate && (
-                  <span className="text-xs text-zinc-400 px-2 py-0.5 rounded-md bg-white/[0.05] border border-white/[0.07]">
+                  <span className="text-xs text-zinc-400 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/[0.07]">
                     {releaseDate}
                   </span>
                 )}
                 {runtime && (
-                  <span className="text-xs text-zinc-400 px-2 py-0.5 rounded-md bg-white/[0.05] border border-white/[0.07]">
-                    {runtime}
+                  <span className="text-xs text-zinc-400 px-2 py-1 rounded-lg bg-white/[0.05] border border-white/[0.07]">
+                    ⏱ {runtime}
                   </span>
                 )}
-                {movie.status && (
-                  <span className="text-xs text-zinc-400 px-2 py-0.5 rounded-md bg-white/[0.05] border border-white/[0.07]">
+                {movie.status && movie.status !== "Released" && (
+                  <span className="text-xs text-indigo-300 px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
                     {movie.status}
                   </span>
                 )}
               </div>
-
-              {tagline && (
-                <p className="italic text-sm text-zinc-500 mt-2">&ldquo;{tagline}&rdquo;</p>
-              )}
             </div>
 
             {/* Genres */}
@@ -164,7 +181,7 @@ export default async function MoviePage({ params }) {
                   <Link
                     key={genre.id}
                     href={`/genre/${genre.id}?name=${encodeURIComponent(genre.name)}`}
-                    className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/[0.05] border border-white/[0.08] text-zinc-300 hover:border-indigo-500/40 hover:text-white transition-all"
+                    className="px-3 py-1 rounded-full text-xs font-semibold bg-white/[0.05] border border-white/[0.09] text-zinc-300 hover:border-indigo-500/50 hover:text-indigo-300 hover:bg-indigo-500/8 transition-all duration-150"
                   >
                     {genre.name}
                   </Link>
@@ -179,19 +196,22 @@ export default async function MoviePage({ params }) {
               </p>
             )}
 
+            {/* Multi-source ratings (OMDB) */}
+            {movie.imdb_id && <MultiRatings imdbId={movie.imdb_id} />}
+
             {/* Budget / Revenue */}
             {(budgetStr || revenueStr) && (
-              <div className="flex flex-wrap gap-4 sm:gap-6">
+              <div className="flex flex-wrap gap-5 sm:gap-8 pt-1">
                 {budgetStr && (
                   <div>
-                    <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold mb-0.5">Budget</p>
-                    <p className="text-sm font-semibold text-zinc-300">{budgetStr}</p>
+                    <p className="text-[11px] text-zinc-600 uppercase tracking-widest font-bold mb-1">Budget</p>
+                    <p className="text-sm font-bold text-zinc-300">{budgetStr}</p>
                   </div>
                 )}
                 {revenueStr && (
                   <div>
-                    <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold mb-0.5">Revenue</p>
-                    <p className="text-sm font-semibold text-zinc-300">{revenueStr}</p>
+                    <p className="text-[11px] text-zinc-600 uppercase tracking-widest font-bold mb-1">Revenue</p>
+                    <p className="text-sm font-bold text-zinc-300">{revenueStr}</p>
                   </div>
                 )}
               </div>
@@ -199,8 +219,14 @@ export default async function MoviePage({ params }) {
 
             {/* Action buttons */}
             <div className="flex flex-wrap gap-2.5 pt-1">
-              <WatchlistButton movie={movie} />
+              <ListsButton movie={movie} mediaType="movie" />
               <TrailerModal videos={videos} />
+              <ShareButton title={movie.title} />
+            </div>
+
+            {/* Personal rating */}
+            <div className="pt-2 max-w-xs">
+              <RatingWidget id={movie.id} mediaType="movie" />
             </div>
 
             <LazyWatchProviders mediaType="movie" id={id} />
@@ -234,7 +260,7 @@ export default async function MoviePage({ params }) {
         {(credits.cast ?? []).length > 0 && (
           <section className="mt-12 sm:mt-16">
             <h2 className="section-title mb-4">Cast</h2>
-            <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar">
               {credits.cast.slice(0, 16).map((actor) => (
                 <CastCard key={actor.id} actor={actor} />
               ))}
@@ -254,8 +280,7 @@ export default async function MoviePage({ params }) {
           </section>
         )}
 
-        <LazyRecommendations mediaType="movie" id={id} />
-        <MovieReviews movieId={id} />
+        <MediaExtras mediaType="movie" id={id} />
       </div>
     </main>
   );
