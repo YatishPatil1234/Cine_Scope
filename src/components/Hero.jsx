@@ -105,7 +105,7 @@ export default function Hero({ movies = [] }) {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full min-h-[90vw] sm:min-h-[66vh] md:min-h-[75vh] max-h-[860px] overflow-hidden flex items-end sm:items-center"
+      className="relative w-full min-h-[90vw] sm:min-h-[66vh] md:min-h-[75vh] max-h-[860px] overflow-hidden flex flex-col"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={onTouchStart}
@@ -131,8 +131,9 @@ export default function Hero({ movies = [] }) {
       <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(8,8,8,1) 0%, rgba(8,8,8,0.5) 30%, rgba(8,8,8,0) 70%)" }} />
       <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.6) 0%, transparent 25%)" }} />
 
-      {/* Content */}
-      <div className="relative w-full page-container pb-16 sm:pb-10 pt-16 sm:pt-20 flex items-center justify-between gap-6 sm:gap-10">
+      {/* Content — fills remaining space above the bottom controls, never overlaps them */}
+      <div className="relative flex-1 min-h-0 flex items-end sm:items-center">
+      <div className="w-full page-container pb-6 sm:pb-8 pt-16 sm:pt-20 flex items-center justify-between gap-6 sm:gap-10">
 
         {/* Left — info */}
         <div key={`info-${idx}`} className="flex-1 min-w-0 max-w-[560px] hero-content-enter">
@@ -149,27 +150,10 @@ export default function Hero({ movies = [] }) {
             )}
           </div>
 
-          {/* Title + bookmark */}
-          <div className="flex items-start gap-3 mb-3 sm:mb-4">
-            <h1 className="text-[2rem] sm:text-[2.4rem] md:text-[2.8rem] lg:text-[3.2rem] font-extrabold tracking-tight leading-[1.04] text-white">
-              {movie.title}
-            </h1>
-            <button
-              type="button"
-              onClick={toggleSave}
-              aria-label={saved ? "Remove from watchlist" : "Add to watchlist"}
-              aria-pressed={saved}
-              className={`shrink-0 mt-1.5 sm:mt-2.5 w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200 hover:scale-105 ${
-                saved
-                  ? "bg-indigo-600 border-indigo-400/40 text-white"
-                  : "bg-white/[0.08] border-white/[0.15] text-zinc-300 hover:text-white hover:bg-white/[0.14]"
-              }`}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
-              </svg>
-            </button>
-          </div>
+          {/* Title */}
+          <h1 className="text-[2rem] sm:text-[2.4rem] md:text-[2.8rem] lg:text-[3.2rem] font-extrabold tracking-tight leading-[1.04] text-white mb-3 sm:mb-4">
+            {movie.title}
+          </h1>
 
           {/* Meta row */}
           <div className="flex items-center flex-wrap gap-2 mb-3 sm:mb-4">
@@ -219,6 +203,21 @@ export default function Hero({ movies = [] }) {
               </span>
             </Link>
             <SurpriseMe />
+            <button
+              type="button"
+              onClick={toggleSave}
+              aria-label={saved ? "Remove from watchlist" : "Add to watchlist"}
+              aria-pressed={saved}
+              className={`shrink-0 w-11 h-11 rounded-xl flex items-center justify-center border transition-all duration-200 hover:scale-105 ${
+                saved
+                  ? "bg-indigo-600 border-indigo-400/40 text-white"
+                  : "bg-white/[0.06] border-white/[0.1] text-zinc-300 hover:text-white hover:bg-white/[0.11] hover:border-white/[0.2]"
+              }`}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -250,12 +249,13 @@ export default function Hero({ movies = [] }) {
           </div>
         )}
       </div>
+      </div>
 
-      {/* Bottom controls */}
+      {/* Bottom controls — normal flow, always gets its own reserved space */}
       {movies.length > 1 && (
-        <div className="absolute bottom-0 left-0 right-0 page-container pb-4 sm:pb-5 flex items-center gap-3">
+        <div className="relative w-full page-container pb-4 sm:pb-5 pt-1 shrink-0 flex items-center gap-3">
           {/* Auto-progress bar */}
-          <div className="flex-1 h-[2px] max-w-[120px] rounded-full bg-white/[0.08] overflow-hidden">
+          <div className="w-8 sm:w-10 shrink-0 h-[2px] rounded-full bg-white/[0.08] overflow-hidden">
             <div
               key={`progress-${idx}-${paused}`}
               className="h-full rounded-full bg-indigo-400"

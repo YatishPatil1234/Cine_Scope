@@ -17,6 +17,18 @@ const nextConfig = {
     root: __dirname,
   },
 
+  // Next.js 16.1 turned Turbopack's persistent filesystem cache for `next
+  // dev` on by default. This project lives inside a OneDrive-synced
+  // folder, where sync locks / delayed writes make that on-disk cache go
+  // stale between edits — the server keeps serving an old cached render
+  // while the client picks up the fresh HMR bundle, producing recurring
+  // hydration mismatches. Disabling it trades a slightly slower cold
+  // start for reliable, always-fresh dev renders. (Does not affect
+  // production builds — those don't use the dev cache at all.)
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
+
   // ── Images ─────────────────────────────────────────────────────────────────
   // CRITICAL COST SAVING: Skip Next.js image re-optimization for TMDB images.
   // TMDB's own CDN (image.tmdb.org) already serves WebP/AVIF from a global CDN.

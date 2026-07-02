@@ -34,10 +34,10 @@ export default function Footer() {
       />
 
       <div className="page-container relative py-10 sm:py-12">
-        <div className="flex flex-col md:flex-row gap-10 md:gap-16">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-10">
 
           {/* Brand */}
-          <div className="md:max-w-[280px]">
+          <div className="md:max-w-[320px]">
             <Link href="/" className="text-xl font-extrabold tracking-tight text-white">
               Cine<span className="text-indigo-400">Scope</span>
             </Link>
@@ -69,7 +69,7 @@ export default function Footer() {
           </div>
 
           {/* Link columns */}
-          <div className="flex gap-14 sm:gap-20">
+          <div className="flex gap-14 sm:gap-20 md:gap-0 md:justify-between md:flex-1 md:max-w-[420px]">
             {COLUMNS.map((col) => (
               <nav key={col.heading}>
                 <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-zinc-600 mb-3.5">

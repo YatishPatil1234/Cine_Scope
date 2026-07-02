@@ -33,9 +33,9 @@ export default function HorizontalMovieSection({ title, movies, seeAllHref, eyeb
   if (!list.length) return null;
 
   return (
-    <section className="py-8 sm:py-10">
+    <section className="page-container py-8 sm:py-10">
       {/* ─ Header ───────────────────────────────── */}
-      <div className="page-container flex items-center justify-between gap-4 mb-5">
+      <div className="flex items-center justify-between gap-4 mb-5">
         <div className="flex items-center gap-3 min-w-0">
           {/* Accent pill */}
           <div className="w-1 h-5 rounded-full shrink-0" style={{ background: accentColor }} />
@@ -56,7 +56,7 @@ export default function HorizontalMovieSection({ title, movies, seeAllHref, eyeb
             onClick={() => scrollBy(-500)}
             disabled={!canLeft}
             aria-label="Scroll left"
-            className="w-7 h-7 rounded-full flex items-center justify-center border border-white/[0.09] text-zinc-500 hover:text-white hover:border-white/[0.2] transition-all disabled:opacity-20 disabled:cursor-default text-[18px] leading-none"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/[0.14] text-zinc-300 hover:bg-white/[0.12] hover:text-white hover:border-white/[0.3] transition-all disabled:opacity-25 disabled:cursor-default text-[18px] leading-none"
           >
             ‹
           </button>
@@ -65,7 +65,7 @@ export default function HorizontalMovieSection({ title, movies, seeAllHref, eyeb
             onClick={() => scrollBy(500)}
             disabled={!canRight}
             aria-label="Scroll right"
-            className="w-7 h-7 rounded-full flex items-center justify-center border border-white/[0.09] text-zinc-500 hover:text-white hover:border-white/[0.2] transition-all disabled:opacity-20 disabled:cursor-default text-[18px] leading-none"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/[0.06] border border-white/[0.14] text-zinc-300 hover:bg-white/[0.12] hover:text-white hover:border-white/[0.3] transition-all disabled:opacity-25 disabled:cursor-default text-[18px] leading-none"
           >
             ›
           </button>
@@ -102,7 +102,7 @@ export default function HorizontalMovieSection({ title, movies, seeAllHref, eyeb
 
         <div
           ref={ref}
-          className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar snap-x snap-mandatory page-container"
+          className="flex gap-3 sm:gap-4 overflow-x-auto pb-3 hide-scrollbar snap-x snap-mandatory"
         >
           {list.slice(0, 16).map((movie) => (
             <div key={movie.id} className="w-[142px] sm:w-[160px] shrink-0 snap-start">

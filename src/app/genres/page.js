@@ -63,7 +63,7 @@ export default async function GenresPage() {
                 className="group"
               >
                 <div
-                  className="relative overflow-hidden rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border"
+                  className="relative overflow-hidden rounded-2xl p-5 sm:p-6 h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border flex flex-col items-center justify-center text-center"
                   style={{
                     background: `linear-gradient(135deg, ${meta.color}12 0%, rgba(255,255,255,0.015) 65%)`,
                     borderColor: `${meta.color}22`,
